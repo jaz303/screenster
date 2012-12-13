@@ -1,14 +1,22 @@
 CC			= gcc
-CFLAGS		= -Isrc -I/usr/local/include -g
+CFLAGS		= -Isrc -I/usr/local/include -g -std=c99
 LDFLAGS		= -lallegro
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-OBJECTS		=	src/main.o	\
+OBJECTS		:=	src/main.o	\
 				src/rbuf.o
 
-all: $(OBJECTS)
+HANDLERS	:=	$(wildcard src/commands/*/*.c)
+
+default: all
+
+src/handlers.c: $(HANDLERS)
+	rake generate_handlers
+	touch src/main.c
+
+all: src/handlers.c $(OBJECTS)
 	$(CC) -o test $(OBJECTS) $(LDFLAGS)
 
 clean:
