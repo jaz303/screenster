@@ -1,3 +1,10 @@
-[ ] Message replies
 [ ] Auto-generate length checking and parameter extraction for handlers
+[ ] Primitive drawing
+[ ] Image loading
+[ ] Tileset loading
+[ ] Tile rendering
+
+[ ] Threading/non-blockingness
+
+[ ] Message replies
 [ ] String handling
