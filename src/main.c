@@ -26,6 +26,7 @@ uint16_t    cmd_len;
 
 #define MAX_SCREENS 15
 ALLEGRO_DISPLAY* screens[MAX_SCREENS+1] = {0};
+int active_screen = 0;
 
 //
 // Handlers

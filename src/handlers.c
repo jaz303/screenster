@@ -64,6 +64,28 @@ HANDLER_FN(cmd_destroy_screen) {
     al_destroy_display(screens[screen_id]);
     screens[screen_id] = 0;
     
+    if (active_screen == screen_id) {
+    	active_screen = 0;
+    }
+    
+    // TODO: reply
+}
+
+HANDLER_FN(cmd_set_active_screen) {
+    if (cmd_len != 1) {
+    	// TODO: error
+    	return;
+    }
+    
+    char screen_id = READ_BYTE();
+    
+    if (screen_id < 1 || screen_id > MAX_SCREENS || screens[screen_id] == 0) {
+    	// TODO: error
+    	return;
+    }
+    
+    active_screen = screen_id;
+    
     // TODO: reply
 }
 
@@ -79,9 +101,10 @@ void handlers_init() {
     create_category(0, 2);
     install_handler(0, 1, cmd_all_reset);
     install_handler(0, 2, cmd_frame_reset);
-    create_category(64, 2);
+    create_category(64, 3);
     install_handler(64, 1, cmd_create_screen);
     install_handler(64, 2, cmd_destroy_screen);
+    install_handler(64, 3, cmd_set_active_screen);
     create_category(255, 2);
     install_handler(255, 1, cmd_hello);
     install_handler(255, 2, cmd_goodbye);

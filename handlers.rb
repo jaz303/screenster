@@ -13,7 +13,9 @@ HANDLERS = {
                 :params => [:L, "width", :L, "height", :C, "fullscreen"],
                 :return => [:L, "screen-id"] },
       0x02 => { :name => "DESTROY-SCREEN",
-                :params => [:L, "screen-id"] }
+                :params => [:C, "screen-id"] },
+      0x03 => { :name => "SET-ACTIVE-SCREEN",
+                :params => [:C, "screen-id"] }
     },
     
   },
