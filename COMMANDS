@@ -1,0 +1,61 @@
+2 byte length
+1 byte category
+1 byte message
+
+Categories
+----------
+0x00                Control
+0x00    0x01        ALL-RESET
+0x00    0x02        FRAME-RESET
+
+0x04                Macro
+0x04    0x01        RECORD-START
+0x04    0x02        RECORD-STOP
+0x04    0x03        PLAY
+
+0x2.                Events (masks, capture regions)
+
+0x4.                Graphics
+
+0x40                Screen
+0x40    0x01        CREATE-SCREEN w, h, is_fullscreen
+0x40    0x02        DESTROY-SCREEN screen-id
+0x40    0x03        SET-ACTIVE-SCREEN screen-id
+0x40    0x04        CLEAR-SCREEN color-ref
+0x40    0x05        FLIP-SCREEN
+
+0x41                Drawing State
+0x41    0x01        SAVE-STATE
+0x41    0x02        RESTORE-STATE
+0x41    0x03        SET-CLIP-RECT x, y, w, h
+0x41    0x04        SET-CLIP-CIRCLE x, y, r
+0x41    0x05        SET-CLIP-POLY npoints, x1, y1 ...
+
+0x42                Tileset management
+0x42    0x01        LOAD-TILESET
+0x42    0x02        UNLOAD-TILESET tileset-id
+
+0x43                Tileset rendering
+0x43    0x01        DRAW-TILE tileset-id tile-ref x y
+0x43    0x02        DRAW-TILE-ADV tileset-id tile-ref x y rotation scale
+0x43    0x03        DRAW-TILES tileset-id ...
+0x43    0x04        DRAW-TILES # support draw from multiple tilesets
+
+0x44                Font management
+0x44                DEFINE-FONT tileset-id ...
+
+0x45                Text rendering
+0x45    0x01        DRAW-STRING-LINE x, y, string
+
+0x46                Direct drawing
+
+0x6.                Audio (play sound, play music)
+
+Other stuff:
+ - particle system
+ - animation?
+ - UI toolkit
+ - shaders
+ - 3D
+ - etc
+ - reply requests?

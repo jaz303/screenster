@@ -1,0 +1,7 @@
+[ ] Ring buffer
+[ ] Parser
+[ ] Code generator
+[ ] Command registration
+    [ ] Array of LUTs (256)
+    [ ] Each LUT is initialised with a size
+    [ ] Each entry in LUT is a handler function
