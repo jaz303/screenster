@@ -59,17 +59,17 @@ int rbuf_write(rbuf_t *buf, unsigned char *bytes, size_t len) {
     return 1;
 }
 
-int rbuf_write_uint64(rbuf_t *buf, uint64_t v) {
-    return rbuf_write(buf, (unsigned char*)&v, 8);
-}
+#define PRIMITIVE_WRITER(type) \
+    int rbuf_write_##type(rbuf_t *buf, type##_t v) { \
+        return rbuf_write(buf, (unsigned char*)&v, sizeof(type##_t)); \
+    }
 
-int rbuf_write_uint32(rbuf_t *buf, uint32_t v) {
-    return rbuf_write(buf, (unsigned char*)&v, 4);
-}
-
-int rbuf_write_uint16(rbuf_t *buf, uint16_t v) {
-    return rbuf_write(buf, (unsigned char*)&v, 2);
-}
+PRIMITIVE_WRITER(uint64)
+PRIMITIVE_WRITER(uint32)
+PRIMITIVE_WRITER(uint16)
+PRIMITIVE_WRITER(int64)
+PRIMITIVE_WRITER(int32)
+PRIMITIVE_WRITER(int16)
 
 int rbuf_write_byte(rbuf_t *buf, unsigned char v) {
     if (!RBUF_REMAIN(1)) return 0;
