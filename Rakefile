@@ -1,4 +1,4 @@
-require 'handlers'
+require './handlers'
 
 def c_function(command)
   'cmd_' + command.downcase.gsub('-', '_')
