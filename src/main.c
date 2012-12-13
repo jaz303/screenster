@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <allegro5/allegro.h>
 
 #include "rbuf.h"
 
@@ -19,6 +20,12 @@ rbuf_t      *cmd_buffer;
 uint8_t     cmd_category;
 uint8_t     cmd_command;
 uint16_t    cmd_len;
+
+//
+// Screens
+
+#define MAX_SCREENS 15
+ALLEGRO_DISPLAY* screens[MAX_SCREENS+1] = {0};
 
 //
 // Handlers
