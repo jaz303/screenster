@@ -129,6 +129,14 @@ int main(int argc, char *argv[]) {
     }
     
     handlers_init();
+
+    //
+    // Initialise Allegro
+
+    al_init();
+
+    //
+    //
     
     int listener_socket = create_listener();
     
