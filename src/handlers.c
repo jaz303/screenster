@@ -209,10 +209,10 @@ HANDLER_FN(cmd_draw_rect) {
         return;
     }
     
-    uint32_t x = READ_UINT32();
-    uint32_t y = READ_UINT32();
-    uint32_t w = READ_UINT32();
-    uint32_t h = READ_UINT32();
+    float x = READ_FLOAT();
+    float y = READ_FLOAT();
+    float w = READ_FLOAT();
+    float h = READ_FLOAT();
     
     if (draw_state.flags & DRAW_FILL_ON) {
     	al_draw_filled_rectangle(x, y, x + w, y + h, draw_state.fill_color);
@@ -229,9 +229,9 @@ HANDLER_FN(cmd_draw_circle) {
         return;
     }
     
-    uint32_t cx = READ_UINT32();
-    uint32_t cy = READ_UINT32();
-    uint32_t r = READ_UINT32();
+    float cx = READ_FLOAT();
+    float cy = READ_FLOAT();
+    float r = READ_FLOAT();
     
     if (draw_state.flags & DRAW_FILL_ON) {
     	al_draw_filled_circle(cx, cy, r, draw_state.fill_color);
@@ -248,10 +248,10 @@ HANDLER_FN(cmd_draw_line) {
         return;
     }
     
-    uint32_t x1 = READ_UINT32();
-    uint32_t y1 = READ_UINT32();
-    uint32_t x2 = READ_UINT32();
-    uint32_t y2 = READ_UINT32();
+    float x1 = READ_FLOAT();
+    float y1 = READ_FLOAT();
+    float x2 = READ_FLOAT();
+    float y2 = READ_FLOAT();
     
     if (draw_state.flags & DRAW_PEN_ON) {
     	al_draw_line(x1, y1, x2, y2, draw_state.pen_color, 0);
@@ -266,8 +266,8 @@ HANDLER_FN(cmd_draw_line_to) {
         return;
     }
     
-    uint32_t x = READ_UINT32();
-    uint32_t y = READ_UINT32();
+    float x = READ_FLOAT();
+    float y = READ_FLOAT();
     
     if (draw_state.flags & DRAW_PEN_ON) {
     	al_draw_line(draw_state.x, draw_state.y, x, y, draw_state.pen_color, 0);
