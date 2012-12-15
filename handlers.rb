@@ -38,13 +38,13 @@ HANDLERS = {
       0x04 => { :name => "FILL-ON" },
       0x05 => { :name => "FILL-OFF" },
       0x06 => { :name => "DRAW-RECT",
-                :params => [:L, "x", :L, "y", :L, "w", :L, "h"] },
+                :params => [:F, "x", :F, "y", :F, "w", :F, "h"] },
       0x07 => { :name => "DRAW-CIRCLE",
-                :params => [:L, "cx", :L, "cy", :L, "r"] },
+                :params => [:F, "cx", :F, "cy", :F, "r"] },
       0x08 => { :name => "DRAW-LINE",
-                :params => [:L, "x1", :L, "y1", :L, "x2", :L, "y2"] },
+                :params => [:F, "x1", :F, "y1", :F, "x2", :F, "y2"] },
       0x09 => { :name => "DRAW-LINE-TO",
-                :params => [:L, "x", :L, "y"] }
+                :params => [:F, "x", :F, "y"] }
     }
     
   },
