@@ -15,7 +15,8 @@ HANDLERS = {
       0x02 => { :name => "DESTROY-SCREEN",
                 :params => [:C, "screen-id"] },
       0x03 => { :name => "SET-ACTIVE-SCREEN",
-                :params => [:C, "screen-id"] }
+                :params => [:C, "screen-id"] },
+      0x04 => { :name => "FLIP" }
     },
 
     # Graphics - General
