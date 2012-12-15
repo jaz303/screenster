@@ -17,7 +17,7 @@ HANDLER_FN(cmd_frame_reset) {
     }
     
     
-    /* stub handler */
+
 }
 
 HANDLER_FN(cmd_create_screen) {
@@ -74,12 +74,13 @@ HANDLER_FN(cmd_destroy_screen) {
     	return;
     }
     
-    al_destroy_display(screens[screen_id]);
-    screens[screen_id] = 0;
-    
     if (active_screen == screen_id) {
     	active_screen = 0;
+    	al_set_target_bitmap(NULL);
     }
+    
+    al_destroy_display(screens[screen_id]);
+    screens[screen_id] = NULL;
     
     // TODO: reply
 }
@@ -98,8 +99,181 @@ HANDLER_FN(cmd_set_active_screen) {
     }
     
     active_screen = screen_id;
+    al_set_target_backbuffer(screens[active_screen]);
     
     // TODO: reply
+}
+
+HANDLER_FN(cmd_save_graphics_state) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
+    save_graphics_state();
+}
+
+HANDLER_FN(cmd_restore_graphics_state) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
+    restore_graphics_state();
+}
+
+HANDLER_FN(cmd_set_clip_rect) {
+    if (cmd_len != 16) {
+        // TODO: handle error
+        return;
+    }
+    
+    uint32_t x = READ_UINT32();
+    uint32_t y = READ_UINT32();
+    uint32_t w = READ_UINT32();
+    uint32_t h = READ_UINT32();
+    
+    al_set_clipping_rectangle(x, y, w, h);
+}
+
+HANDLER_FN(cmd_clear_clip) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
+    al_reset_clipping_rectangle();
+}
+
+HANDLER_FN(cmd_set_drawing_mode) {
+    if (cmd_len != 2) {
+        // TODO: handle error
+        return;
+    }
+    
+    unsigned char pen_enabled = READ_BYTE();
+    unsigned char fill_enabled = READ_BYTE();
+    
+    draw_state.flags &= ~(DRAW_PEN_ON | DRAW_FILL_ON);
+    
+    if (pen_enabled)	draw_state.flags |= DRAW_PEN_ON;
+    if (fill_enabled)	draw_state.flags |= DRAW_FILL_ON;
+}
+
+HANDLER_FN(cmd_pen_on) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
+    draw_state.flags |= DRAW_PEN_ON;
+}
+
+HANDLER_FN(cmd_pen_off) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
+    draw_state.flags &= ~DRAW_PEN_ON;
+}
+
+HANDLER_FN(cmd_fill_on) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
+    draw_state.flags |= DRAW_FILL_ON;
+}
+
+HANDLER_FN(cmd_fill_off) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
+    draw_state.flags &= ~DRAW_FILL_ON;
+}
+
+HANDLER_FN(cmd_draw_rect) {
+    if (cmd_len != 16) {
+        // TODO: handle error
+        return;
+    }
+    
+    uint32_t x = READ_UINT32();
+    uint32_t y = READ_UINT32();
+    uint32_t w = READ_UINT32();
+    uint32_t h = READ_UINT32();
+    
+    if (draw_state.flags & DRAW_FILL_ON) {
+    	al_draw_filled_rectangle(x, y, x + w, y + h, draw_state.fill_color);
+    }
+    
+    if (draw_state.flags & DRAW_PEN_ON) {
+    	al_draw_rectangle(x, y, x + w, y + h, draw_state.pen_color, 0);
+    }
+}
+
+HANDLER_FN(cmd_draw_circle) {
+    if (cmd_len != 12) {
+        // TODO: handle error
+        return;
+    }
+    
+    uint32_t cx = READ_UINT32();
+    uint32_t cy = READ_UINT32();
+    uint32_t r = READ_UINT32();
+    
+    if (draw_state.flags & DRAW_FILL_ON) {
+    	al_draw_filled_circle(cx, cy, r, draw_state.fill_color);
+    }
+    
+    if (draw_state.flags & DRAW_PEN_ON) {
+    	al_draw_circle(cx, cy, r, draw_state.pen_color, 0);
+    }
+}
+
+HANDLER_FN(cmd_draw_line) {
+    if (cmd_len != 16) {
+        // TODO: handle error
+        return;
+    }
+    
+    uint32_t x1 = READ_UINT32();
+    uint32_t y1 = READ_UINT32();
+    uint32_t x2 = READ_UINT32();
+    uint32_t y2 = READ_UINT32();
+    
+    if (draw_state.flags & DRAW_PEN_ON) {
+    	al_draw_line(x1, y1, x2, y2, draw_state.pen_color, 0);
+    }
+    draw_state.x = x2;
+    draw_state.y = y2;
+}
+
+HANDLER_FN(cmd_draw_line_to) {
+    if (cmd_len != 8) {
+        // TODO: handle error
+        return;
+    }
+    
+    uint32_t x = READ_UINT32();
+    uint32_t y = READ_UINT32();
+    
+    if (draw_state.flags & DRAW_PEN_ON) {
+    	al_draw_line(draw_state.x, draw_state.y, x, y, draw_state.pen_color, 0);
+    }
+    draw_state.x = x;
+    draw_state.y = y;
 }
 
 HANDLER_FN(cmd_hello) {
@@ -130,6 +304,21 @@ void handlers_init() {
     install_handler(64, 1, cmd_create_screen);
     install_handler(64, 2, cmd_destroy_screen);
     install_handler(64, 3, cmd_set_active_screen);
+    create_category(65, 6);
+    install_handler(65, 1, cmd_save_graphics_state);
+    install_handler(65, 2, cmd_restore_graphics_state);
+    install_handler(65, 3, cmd_set_clip_rect);
+    install_handler(65, 6, cmd_clear_clip);
+    create_category(70, 9);
+    install_handler(70, 1, cmd_set_drawing_mode);
+    install_handler(70, 2, cmd_pen_on);
+    install_handler(70, 3, cmd_pen_off);
+    install_handler(70, 4, cmd_fill_on);
+    install_handler(70, 5, cmd_fill_off);
+    install_handler(70, 6, cmd_draw_rect);
+    install_handler(70, 7, cmd_draw_circle);
+    install_handler(70, 8, cmd_draw_line);
+    install_handler(70, 9, cmd_draw_line_to);
     create_category(255, 2);
     install_handler(255, 1, cmd_hello);
     install_handler(255, 2, cmd_goodbye);
