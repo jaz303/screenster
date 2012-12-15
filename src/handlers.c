@@ -104,6 +104,17 @@ HANDLER_FN(cmd_set_active_screen) {
     // TODO: reply
 }
 
+HANDLER_FN(cmd_clear_screen) {
+    if (cmd_len != 4) {
+        // TODO: handle error
+        return;
+    }
+    
+    uint32_t color = READ_UINT32();
+    
+    al_clear_to_color(COLOR_TO_ALLEGRO(color));
+}
+
 HANDLER_FN(cmd_flip) {
     if (cmd_len != 0) {
         // TODO: handle error
@@ -221,12 +232,7 @@ HANDLER_FN(cmd_set_pen_color) {
     
     uint32_t argb = READ_UINT32();
     
-    draw_state.pen_color = al_map_rgba(
-    	(argb >> 16) & 0xFF,
-    	(argb >>  8) & 0xFF,
-    	(argb >>  0) & 0xFF,
-    	(argb >> 24) & 0xFF
-    	);
+    draw_state.pen_color = COLOR_TO_ALLEGRO(argb);
 }
 
 HANDLER_FN(cmd_set_fill_color) {
@@ -237,12 +243,7 @@ HANDLER_FN(cmd_set_fill_color) {
     
     uint32_t argb = READ_UINT32();
     
-    draw_state.fill_color = al_map_rgba(
-    	(argb >> 16) & 0xFF,
-    	(argb >>  8) & 0xFF,
-    	(argb >>  0) & 0xFF,
-    	(argb >> 24) & 0xFF
-    	);
+    draw_state.fill_color = COLOR_TO_ALLEGRO(argb);
 }
 
 HANDLER_FN(cmd_draw_rect) {
@@ -342,11 +343,12 @@ void handlers_init() {
     create_category(0, 2);
     install_handler(0, 1, cmd_all_reset);
     install_handler(0, 2, cmd_frame_reset);
-    create_category(64, 4);
+    create_category(64, 5);
     install_handler(64, 1, cmd_create_screen);
     install_handler(64, 2, cmd_destroy_screen);
     install_handler(64, 3, cmd_set_active_screen);
-    install_handler(64, 4, cmd_flip);
+    install_handler(64, 4, cmd_clear_screen);
+    install_handler(64, 5, cmd_flip);
     create_category(65, 6);
     install_handler(65, 1, cmd_save_graphics_state);
     install_handler(65, 2, cmd_restore_graphics_state);
