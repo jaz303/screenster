@@ -41,7 +41,7 @@ task :generate_handlers do
   
   HANDLERS.each do |group,categories|
     categories.each do |category,commands|
-      init_function << "    create_category(#{category}, #{commands.length});\n"
+      init_function << "    create_category(#{category}, #{commands.keys.max});\n"
       commands.each do |command,params|
         fun = c_function(params[:name])
         
