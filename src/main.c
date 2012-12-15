@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "rbuf.h"
 
@@ -27,6 +28,53 @@ uint16_t    cmd_len;
 #define MAX_SCREENS 15
 ALLEGRO_DISPLAY* screens[MAX_SCREENS+1] = {0};
 int active_screen = 0;
+
+//
+// Primitives
+
+enum {
+    DRAW_PEN_ON = 1,
+    DRAW_FILL_ON = 2
+};
+
+typedef struct {
+    unsigned int    flags;
+    ALLEGRO_COLOR   pen_color;
+    ALLEGRO_COLOR   fill_color;
+    float           x;
+    float           y;
+} draw_state_t;
+
+draw_state_t draw_state;
+
+//
+// General draw state
+
+typedef struct {
+    draw_state_t        draw_state;
+} saved_graphics_state_t;
+
+#define GRAPHICS_STACK_SIZE 32
+saved_graphics_state_t  graphics_stack[GRAPHICS_STACK_SIZE];
+int                     graphics_stack_count = 0;
+
+void reset_draw_state() {
+    draw_state.flags = DRAW_PEN_ON | DRAW_FILL_ON;
+    draw_state.pen_color = al_map_rgb(255, 255, 255);
+    draw_state.fill_color = al_map_rgb(0, 0, 0);
+    draw_state.x = 0.0f;
+    draw_state.y = 0.0f;
+}
+
+void save_graphics_state() {
+    graphics_stack[graphics_stack_count].draw_state = draw_state;
+    graphics_stack_count++;
+}
+
+void restore_graphics_state() {
+    graphics_stack_count--;
+    draw_state = graphics_stack[graphics_stack_count].draw_state;
+}
 
 //
 // Handlers
@@ -135,6 +183,7 @@ int main(int argc, char *argv[]) {
     // Initialise Allegro
 
     al_init();
+    al_init_primitives_addon();
 
     //
     //

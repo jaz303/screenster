@@ -1,6 +1,6 @@
 CC			= gcc
 CFLAGS		= -Isrc -I/usr/local/include -g -std=c99
-LDFLAGS		= -lallegro
+LDFLAGS		= -lallegro -lallegro_primitives
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<

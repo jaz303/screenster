@@ -1,0 +1,1 @@
+al_set_clipping_rectangle(x, y, w, h);

@@ -1,0 +1,1 @@
+al_reset_clipping_rectangle();

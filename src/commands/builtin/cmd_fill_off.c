@@ -1,0 +1,1 @@
+draw_state.flags &= ~DRAW_FILL_ON;
