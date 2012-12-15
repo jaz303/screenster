@@ -5,33 +5,35 @@ require File.dirname(__FILE__) + '/handlers'
 module Screenster
   class Client
 
-  	def initialize(io)
-  	  @io = io
+    def initialize(io)
+      @io = io
     end
 
     HANDLERS.values.each do |group|
-	  group.each do |category,commands|
-  	  	commands.each do |cmd,cmd_def|
-  	  	  method_name = cmd_def[:name].downcase.gsub('-', '_')
+      group.each do |category,commands|
+        commands.each do |cmd,cmd_def|
+          method_name = cmd_def[:name].downcase.gsub('-', '_')
 
-  	  	  arg_names, pack_string = [], ""
-  	  	  
-  	  	  ix = 0
-  	  	  while ix < (cmd_def[:params] || []).length
-  	  	  	pack_string << cmd_def[:params][ix].to_s
-  	  	  	arg_names << cmd_def[:params][ix+1].gsub('-', '_')
-  	  	  	ix += 2
-  	  	  end
-
-  	  	  arg_names = arg_names.join(',')
-  	  	  
-		  class_eval <<-CODE
-  	  	    def #{method_name}(#{arg_names})
-  	  	      send_msg(#{category}, #{cmd}, "#{pack_string}", #{arg_names})
-  	  	    end
-  	  	  CODE
-  	    end
-  	  end
+          param_names, pack_string = [], ""
+          
+          ix = 0
+          while ix < (cmd_def[:params] || []).length
+            pack_string << cmd_def[:params][ix].to_s
+            param_names << cmd_def[:params][ix+1].gsub('-', '_')
+            ix += 2
+          end
+          
+          param_names = param_names.join(',')
+          arg_names = param_names
+          arg_names = (',' + arg_names) if arg_names.length > 0
+          
+          class_eval <<-CODE
+            def #{method_name}(#{param_names})
+              send_msg(#{category}, #{cmd}, "#{pack_string}" #{arg_names})
+            end
+          CODE
+        end
+      end
     end
 
     private
