@@ -1,22 +1,34 @@
 /* This file is auto-generated (run `rake generate_handlers`) */
 
 HANDLER_FN(cmd_all_reset) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
     /* stub handler */
 }
 
 HANDLER_FN(cmd_frame_reset) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
     /* stub handler */
 }
 
 HANDLER_FN(cmd_create_screen) {
     if (cmd_len != 9) {
-    	// TODO: handle error
-    	return;
+        // TODO: handle error
+        return;
     }
     
-    uint32_t width 	= READ_UINT32();
+    uint32_t width = READ_UINT32();
     uint32_t height = READ_UINT32();
-    char fullscreen	= READ_BYTE();
+    unsigned char fullscreen = READ_BYTE();
     
     printf("new display requested (%dx%d,fullscreen=%d)\n", width, height, fullscreen);
     
@@ -48,10 +60,11 @@ HANDLER_FN(cmd_create_screen) {
 
 HANDLER_FN(cmd_destroy_screen) {
     if (cmd_len != 1) {
-    	// TODO: handle error
+        // TODO: handle error
+        return;
     }
     
-    char screen_id = READ_BYTE();
+    unsigned char screen_id = READ_BYTE();
     
     printf("destroy screen requested (id=%d)\n", screen_id);
     
@@ -73,11 +86,11 @@ HANDLER_FN(cmd_destroy_screen) {
 
 HANDLER_FN(cmd_set_active_screen) {
     if (cmd_len != 1) {
-    	// TODO: error
-    	return;
+        // TODO: handle error
+        return;
     }
     
-    char screen_id = READ_BYTE();
+    unsigned char screen_id = READ_BYTE();
     
     if (screen_id < 1 || screen_id > MAX_SCREENS || screens[screen_id] == 0) {
     	// TODO: error
@@ -90,10 +103,22 @@ HANDLER_FN(cmd_set_active_screen) {
 }
 
 HANDLER_FN(cmd_hello) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
     /* stub handler */
 }
 
 HANDLER_FN(cmd_goodbye) {
+    if (cmd_len != 0) {
+        // TODO: handle error
+        return;
+    }
+    
+    
     /* stub handler */
 }
 

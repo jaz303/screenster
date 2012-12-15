@@ -1,12 +1,3 @@
-if (cmd_len != 9) {
-	// TODO: handle error
-	return;
-}
-
-uint32_t width 	= READ_UINT32();
-uint32_t height = READ_UINT32();
-char fullscreen	= READ_BYTE();
-
 printf("new display requested (%dx%d,fullscreen=%d)\n", width, height, fullscreen);
 
 int created = 0;
