@@ -187,6 +187,8 @@ int main(int argc, char *argv[]) {
     al_init();
     al_init_primitives_addon();
 
+    reset_draw_state();
+
     //
     //
     
