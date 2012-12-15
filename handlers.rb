@@ -37,13 +37,17 @@ HANDLERS = {
       0x03 => { :name => "PEN-OFF" },
       0x04 => { :name => "FILL-ON" },
       0x05 => { :name => "FILL-OFF" },
-      0x06 => { :name => "DRAW-RECT",
+      0x06 => { :name => "SET-PEN-COLOR",
+                :params => [:L, "argb"] },
+      0x07 => { :name => "SET-FILL-COLOR",
+                :params => [:L, "argb"] },
+      0x08 => { :name => "DRAW-RECT",
                 :params => [:F, "x", :F, "y", :F, "w", :F, "h"] },
-      0x07 => { :name => "DRAW-CIRCLE",
+      0x09 => { :name => "DRAW-CIRCLE",
                 :params => [:F, "cx", :F, "cy", :F, "r"] },
-      0x08 => { :name => "DRAW-LINE",
+      0x0A => { :name => "DRAW-LINE",
                 :params => [:F, "x1", :F, "y1", :F, "x2", :F, "y2"] },
-      0x09 => { :name => "DRAW-LINE-TO",
+      0x0B => { :name => "DRAW-LINE-TO",
                 :params => [:F, "x", :F, "y"] }
     }
     

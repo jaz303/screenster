@@ -203,6 +203,38 @@ HANDLER_FN(cmd_fill_off) {
     draw_state.flags &= ~DRAW_FILL_ON;
 }
 
+HANDLER_FN(cmd_set_pen_color) {
+    if (cmd_len != 4) {
+        // TODO: handle error
+        return;
+    }
+    
+    uint32_t argb = READ_UINT32();
+    
+    draw_state.pen_color = al_map_rgba(
+    	(argb >> 16) & 0xFF,
+    	(argb >>  8) & 0xFF,
+    	(argb >>  0) & 0xFF,
+    	(argb >> 24) & 0xFF
+    	);
+}
+
+HANDLER_FN(cmd_set_fill_color) {
+    if (cmd_len != 4) {
+        // TODO: handle error
+        return;
+    }
+    
+    uint32_t argb = READ_UINT32();
+    
+    draw_state.fill_color = al_map_rgba(
+    	(argb >> 16) & 0xFF,
+    	(argb >>  8) & 0xFF,
+    	(argb >>  0) & 0xFF,
+    	(argb >> 24) & 0xFF
+    	);
+}
+
 HANDLER_FN(cmd_draw_rect) {
     if (cmd_len != 16) {
         // TODO: handle error
@@ -309,16 +341,18 @@ void handlers_init() {
     install_handler(65, 2, cmd_restore_graphics_state);
     install_handler(65, 3, cmd_set_clip_rect);
     install_handler(65, 6, cmd_clear_clip);
-    create_category(70, 9);
+    create_category(70, 11);
     install_handler(70, 1, cmd_set_drawing_mode);
     install_handler(70, 2, cmd_pen_on);
     install_handler(70, 3, cmd_pen_off);
     install_handler(70, 4, cmd_fill_on);
     install_handler(70, 5, cmd_fill_off);
-    install_handler(70, 6, cmd_draw_rect);
-    install_handler(70, 7, cmd_draw_circle);
-    install_handler(70, 8, cmd_draw_line);
-    install_handler(70, 9, cmd_draw_line_to);
+    install_handler(70, 6, cmd_set_pen_color);
+    install_handler(70, 7, cmd_set_fill_color);
+    install_handler(70, 8, cmd_draw_rect);
+    install_handler(70, 9, cmd_draw_circle);
+    install_handler(70, 10, cmd_draw_line);
+    install_handler(70, 11, cmd_draw_line_to);
     create_category(255, 2);
     install_handler(255, 1, cmd_hello);
     install_handler(255, 2, cmd_goodbye);
