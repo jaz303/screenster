@@ -86,6 +86,8 @@ void restore_graphics_state() {
 #define READ_UINT32()   rbuf_read_uint32(cmd)
 #define READ_UINT16()   rbuf_read_uint16(cmd)
 #define READ_BYTE()     rbuf_read_byte(cmd)
+#define READ_FLOAT()    rbuf_read_float(cmd)
+#define READ_DOUBLE()   rbuf_read_double(cmd)
 
 typedef void (*handler_f)(HANDLER_ARGS);
 handler_f*      handler_lookup[256] = {0};

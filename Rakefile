@@ -2,31 +2,18 @@ require './handlers'
 
 PARAM_TYPES = {
 
-  :Q => {
-    :c_type => 'uint64_t', :size => 8, :reader => 'READ_UINT64()'
-  },
-  :L => {
-    :c_type => 'uint32_t', :size => 4, :reader => "READ_UINT32()"
-  },
-  :S => {
-    :c_type => 'uint16_t', :size => 2, :reader => "READ_UINT16()"
-  },
-  :C => {
-    :c_type => 'unsigned char', :size => 1, :reader => "READ_BYTE()"
-  },
+  :Q => { :c_type => 'uint64_t', :size => 8, :reader => 'READ_UINT64()' },
+  :L => { :c_type => 'uint32_t', :size => 4, :reader => "READ_UINT32()" },
+  :S => { :c_type => 'uint16_t', :size => 2, :reader => "READ_UINT16()" },
+  :C => { :c_type => 'unsigned char', :size => 1, :reader => "READ_BYTE()" },
 
-  :q => {
-    :c_type => 'int64_t', :size => 8, :reader => 'READ_UINT64()'
-  },
-  :l => {
-    :c_type => 'int32_t', :size => 4, :reader => "READ_UINT32()"
-  },
-  :s => {
-    :c_type => 'int16_t', :size => 2, :reader => "READ_UINT16()"
-  },
-  :c => {
-    :c_type => 'char', :size => 1, :reader => "READ_CHAR()"
-  }
+  :q => { :c_type => 'int64_t', :size => 8, :reader => 'READ_UINT64()' },
+  :l => { :c_type => 'int32_t', :size => 4, :reader => "READ_UINT32()" },
+  :s => { :c_type => 'int16_t', :size => 2, :reader => "READ_UINT16()" },
+  :c => { :c_type => 'char', :size => 1, :reader => "READ_CHAR()" },
+
+  :F => { :c_type => 'float', :size => 4, :reader => 'READ_FLOAT()' },
+  :D => { :c_type => 'double', :size => 8, :reader => 'READ_DOUBLE()' }
 
 }
 
