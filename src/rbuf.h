@@ -30,6 +30,8 @@ int                 rbuf_write_int64(rbuf_t *buf, int64_t v);
 int                 rbuf_write_int32(rbuf_t *buf, int32_t v);
 int                 rbuf_write_int16(rbuf_t *buf, int16_t v);
 int                 rbuf_write_byte(rbuf_t *buf, unsigned char v);
+int 				rbuf_write_float(rbuf_t *buf, float v);
+int 				rbuf_write_double(rbuf_t *buf, double v);
 
 int                 rbuf_read(rbuf_t *buf, unsigned char *out, size_t len);
 uint64_t            rbuf_read_uint64(rbuf_t *buf);
@@ -39,5 +41,7 @@ int64_t             rbuf_read_int64(rbuf_t *buf);
 int32_t             rbuf_read_int32(rbuf_t *buf);
 int16_t             rbuf_read_int16(rbuf_t *buf);
 unsigned char       rbuf_read_byte(rbuf_t *buf);
+float 				rbuf_read_float(rbuf_t *buf);
+double 				rbuf_read_double(rbuf_t *buf);
 
 #endif

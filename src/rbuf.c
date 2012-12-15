@@ -59,17 +59,19 @@ int rbuf_write(rbuf_t *buf, unsigned char *bytes, size_t len) {
     return 1;
 }
 
-#define PRIMITIVE_WRITER(type) \
-    int rbuf_write_##type(rbuf_t *buf, type##_t v) { \
-        return rbuf_write(buf, (unsigned char*)&v, sizeof(type##_t)); \
+#define PRIMITIVE_WRITER(type, c_type) \
+    int rbuf_write_##type(rbuf_t *buf, c_type v) { \
+        return rbuf_write(buf, (unsigned char*)&v, sizeof(c_type)); \
     }
 
-PRIMITIVE_WRITER(uint64)
-PRIMITIVE_WRITER(uint32)
-PRIMITIVE_WRITER(uint16)
-PRIMITIVE_WRITER(int64)
-PRIMITIVE_WRITER(int32)
-PRIMITIVE_WRITER(int16)
+PRIMITIVE_WRITER(uint64, uint64_t)
+PRIMITIVE_WRITER(uint32, uint32_t)
+PRIMITIVE_WRITER(uint16, uint16_t)
+PRIMITIVE_WRITER(int64, int64_t)
+PRIMITIVE_WRITER(int32, int32_t)
+PRIMITIVE_WRITER(int16, int16_t)
+PRIMITIVE_WRITER(float, float)
+PRIMITIVE_WRITER(double, double)
 
 int rbuf_write_byte(rbuf_t *buf, unsigned char v) {
     if (!RBUF_REMAIN(1)) return 0;
@@ -85,19 +87,21 @@ int rbuf_read(rbuf_t *buf, unsigned char *out, size_t len) {
     return len;
 }
 
-#define PRIMITIVE_READER(type) \
-    type##_t rbuf_read_##type(rbuf_t *buf) { \
-        type##_t v; \
-        rbuf_read(buf, (unsigned char*)&v, sizeof(type##_t)); \
+#define PRIMITIVE_READER(type, c_type) \
+    c_type rbuf_read_##type(rbuf_t *buf) { \
+        c_type v; \
+        rbuf_read(buf, (unsigned char*)&v, sizeof(c_type)); \
         return v; \
     }
     
-PRIMITIVE_READER(uint64)
-PRIMITIVE_READER(uint32)
-PRIMITIVE_READER(uint16)
-PRIMITIVE_READER(int64)
-PRIMITIVE_READER(int32)
-PRIMITIVE_READER(int16)
+PRIMITIVE_READER(uint64, uint64_t)
+PRIMITIVE_READER(uint32, uint32_t)
+PRIMITIVE_READER(uint16, uint16_t)
+PRIMITIVE_READER(int64, int64_t)
+PRIMITIVE_READER(int32, int32_t)
+PRIMITIVE_READER(int16, int16_t)
+PRIMITIVE_READER(float, float)
+PRIMITIVE_READER(double, double)
 
 unsigned char rbuf_read_byte(rbuf_t *buf) {
     if (buf->count == 0) return 0;
