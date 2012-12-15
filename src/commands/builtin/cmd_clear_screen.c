@@ -1,0 +1,1 @@
+al_clear_to_color(COLOR_TO_ALLEGRO(color));

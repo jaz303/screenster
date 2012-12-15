@@ -16,7 +16,9 @@ HANDLERS = {
                 :params => [:C, "screen-id"] },
       0x03 => { :name => "SET-ACTIVE-SCREEN",
                 :params => [:C, "screen-id"] },
-      0x04 => { :name => "FLIP" }
+      0x04 => { :name => "CLEAR-SCREEN",
+                :params => [:L, "color"] },
+      0x05 => { :name => "FLIP" }
     },
 
     # Graphics - General
