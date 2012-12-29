@@ -113,12 +113,13 @@ void restore_graphics_state() {
             goto param_error; \
         } \
         \
-        // TODO: allocate static string buffer \
-        // TODO: read string into static buffer \
-        // TODO: null terminate string \
-        // TODO: return string address \
+        char *str = HANDLER_ALLOC(string_length + 1); \
+        if (str) { \
+            rbuf_read(cmd, str, string_length + 1); \
+            str[string_length] = 0; \
+        } \
         \
-        0; \
+        str; \
     })
 
 #define COLOR_TO_ALLEGRO(argb) \
