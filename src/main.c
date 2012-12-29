@@ -7,6 +7,7 @@
 #include <allegro5/allegro_primitives.h>
 
 #include "rbuf.h"
+#include "mpool.h"
 
 const unsigned short listen_port = 32000;
 
@@ -21,6 +22,16 @@ rbuf_t      *cmd_buffer;
 uint8_t     cmd_category;
 uint8_t     cmd_command;
 uint16_t    cmd_len;
+
+//
+// Memory pool for use by command handlers
+// Any allocated memory will be released after the handler returns
+
+#define HANDLER_ALLOC(sz)       mpool_alloc(handler_pool, sz)
+#define HANDLER_POOL_DRAIN()    mpool_clear(handler_pool)
+
+#define HANDLER_POOL_SIZE 65536
+mpool_t *handler_pool;
 
 //
 // Screens
@@ -181,6 +192,7 @@ int process() {
                     } else {
                         ssize_t expected_count_after = rbuf_count(cmd_buffer) - cmd_len;
                         handler_lookup[cmd_category][cmd_command](cmd_len, cmd_buffer);
+                        HANDLER_POOL_DRAIN();
                         while (rbuf_count(cmd_buffer) > expected_count_after) {
                             rbuf_read_byte(cmd_buffer);
                         }
@@ -206,6 +218,12 @@ int main(int argc, char *argv[]) {
     cmd_buffer = rbuf_create(CMD_BUFFER_SIZE);
     if (!cmd_buffer) {
         fprintf(stderr, "could not allocate input buffer\n");
+        return 1;
+    }
+    
+    handler_pool = mpool_create(HANDLER_POOL_SIZE);
+    if (!handler_pool) {
+        fprintf(stderr, "could not allocate handler memory pool\n");
         return 1;
     }
     
