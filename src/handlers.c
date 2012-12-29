@@ -7,7 +7,7 @@ HANDLER_FN(cmd_all_reset) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -18,7 +18,19 @@ HANDLER_FN(cmd_frame_reset) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
+    return;
+}
+
+HANDLER_FN(cmd_test_echo) {
+    char* string = READ_STRING();
+    
+    printf("len=> %d, string=> %s\n", strlen(string), string);
+    
+    return;
+    
+    param_error:
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -29,7 +41,7 @@ HANDLER_FN(cmd_flip) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -68,7 +80,7 @@ HANDLER_FN(cmd_create_screen) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -96,7 +108,7 @@ HANDLER_FN(cmd_destroy_screen) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -116,7 +128,7 @@ HANDLER_FN(cmd_set_active_screen) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -128,7 +140,7 @@ HANDLER_FN(cmd_clear_screen) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -139,7 +151,7 @@ HANDLER_FN(cmd_fill_off) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -156,7 +168,7 @@ HANDLER_FN(cmd_draw_line_to) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -168,7 +180,7 @@ HANDLER_FN(cmd_set_pen_color) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -184,7 +196,7 @@ HANDLER_FN(cmd_set_drawing_mode) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -196,7 +208,7 @@ HANDLER_FN(cmd_set_fill_color) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -207,7 +219,7 @@ HANDLER_FN(cmd_pen_on) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -228,7 +240,7 @@ HANDLER_FN(cmd_draw_rect) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -239,7 +251,7 @@ HANDLER_FN(cmd_pen_off) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -259,7 +271,7 @@ HANDLER_FN(cmd_draw_circle) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -270,7 +282,7 @@ HANDLER_FN(cmd_fill_on) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -289,7 +301,7 @@ HANDLER_FN(cmd_draw_line) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -300,7 +312,7 @@ HANDLER_FN(cmd_clear_clip) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -311,7 +323,7 @@ HANDLER_FN(cmd_save_graphics_state) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -322,7 +334,7 @@ HANDLER_FN(cmd_restore_graphics_state) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -337,7 +349,7 @@ HANDLER_FN(cmd_set_clip_rect) {
     return;
     
     param_error:
-    // TODO: handle param error
+    fprintf(stderr, "parameter error!\n");
     return;
 }
 
@@ -345,6 +357,8 @@ void handlers_init() {
     create_category(0, 2);
     install_handler(0, 1, cmd_all_reset);
     install_handler(0, 2, cmd_frame_reset);
+    create_category(255, 1);
+    install_handler(255, 1, cmd_test_echo);
     create_category(64, 5);
     install_handler(64, 5, cmd_flip);
     install_handler(64, 1, cmd_create_screen);

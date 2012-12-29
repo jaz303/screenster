@@ -15,7 +15,7 @@ PARAM_TYPES = {
   :f => { :c_type => 'float', :reader => 'READ_FIXED_LENGTH(float, float)' },
   :d => { :c_type => 'double', :reader => 'READ_FIXED_LENGTH(double, double)' },
   
-  :A => { :c_type => 'const char*', :reader => 'READ_STRING()' }
+  :A => { :c_type => 'char*', :reader => 'READ_STRING()' }
 
 }
 
@@ -60,7 +60,7 @@ task :generate_handlers do
         handler_source << "\n\nreturn;\n"
         handler_source << "\n"
         handler_source << "param_error:\n"
-        handler_source << "// TODO: handle param error\n"
+        handler_source << "fprintf(stderr, \"parameter error!\\n\");\n"
         handler_source << "return;"
         
         handlers << "HANDLER_FN(#{fun}) {\n"

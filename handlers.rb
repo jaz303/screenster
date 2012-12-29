@@ -52,6 +52,11 @@ HANDLERS = {
                 :params => [:f, "x1", :f, "y1", :f, "x2", :f, "y2"] },
       0x0B => { :name => "DRAW-LINE-TO",
                 :params => [:f, "x", :f, "y"] }
+    },
+    
+    0xFF => {
+      0x01 => { :name => "TEST-ECHO",
+                :params => [:A, "string"] }
     }
     
   }

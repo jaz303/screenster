@@ -14,24 +14,40 @@ module Screenster
         commands.each do |cmd,cmd_def|
           method_name = cmd_def[:name].downcase.gsub('-', '_')
 
-          param_names, pack_string = [], ""
+          param_names, pack_string, args = [], "", []
           
           ix = 0
           while ix < (cmd_def[:params] || []).length
-            pack_string << cmd_def[:params][ix].to_s
-            param_names << cmd_def[:params][ix+1].gsub('-', '_')
+            param_type = cmd_def[:params][ix]
+            param_name = cmd_def[:params][ix+1].gsub('-', '_')
+            
+            param_names << param_name
+            
+            case param_type
+            when :A
+              pack_string << "SA\#{#{param_name}.length + 1}"
+              args << "#{param_name}.length"
+              args << param_name
+            else
+              pack_string << param_type.to_s
+              args << param_name
+            end
+            
             ix += 2
           end
           
           param_names = param_names.join(',')
-          arg_names = param_names
-          arg_names = (',' + arg_names) if arg_names.length > 0
           
-          class_eval <<-CODE
+          args = args.join(',')
+          args = (',' + args) if args.length > 0
+          
+          method = <<-CODE
             def #{method_name}(#{param_names})
-              send_msg(#{category}, #{cmd}, "#{pack_string}" #{arg_names})
+              send_msg(#{category}, #{cmd}, "#{pack_string}" #{args})
             end
           CODE
+          
+          class_eval method
         end
       end
     end
@@ -52,12 +68,14 @@ $client = Screenster::Client.new(TCPSocket.open("localhost", 32000))
 $client.create_screen 800, 600, 0
 $client.set_active_screen 1
 
+$client.test_echo "This is a test!\n"
+
 x, y = 0, 0
 
 loop do
   x += 1
   y += 1
-
+  
   $client.clear_screen 0xff0000
   $client.draw_line 10.0, 10.0, 50.0, 10.0
   $client.draw_rect x, y, 100, 200

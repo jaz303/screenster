@@ -117,6 +117,9 @@ void restore_graphics_state() {
         if (str) { \
             rbuf_read(cmd, str, string_length + 1); \
             str[string_length] = 0; \
+        } else { \
+            fprintf(stderr, "couldn't allocate space for string param (sz=%d)\n", string_length + 1); \
+            goto param_error; \
         } \
         \
         str; \
