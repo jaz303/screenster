@@ -6,7 +6,8 @@ LDFLAGS		= -L/usr/local/lib -lallegro -lallegro_main -lallegro_primitives
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 OBJECTS		:=	src/main.o	\
-				src/rbuf.o
+				src/rbuf.o \
+				src/mpool.o
 
 HANDLERS	:=	$(wildcard src/commands/*/*.c)
 
