@@ -82,12 +82,33 @@ void restore_graphics_state() {
 #define HANDLER_ARGS size_t cmd_len, rbuf_t *cmd
 #define HANDLER_FN(name) void name(HANDLER_ARGS)
 
-#define READ_UINT64()   rbuf_read_uint64(cmd)
-#define READ_UINT32()   rbuf_read_uint32(cmd)
-#define READ_UINT16()   rbuf_read_uint16(cmd)
-#define READ_BYTE()     rbuf_read_byte(cmd)
-#define READ_FLOAT()    rbuf_read_float(cmd)
-#define READ_DOUBLE()   rbuf_read_double(cmd)
+#define READ_FIXED_LENGTH(c_type, reader_type) \
+    ({ \
+        if (rbuf_remain(cmd) < sizeof(c_type)) { \
+            goto param_error; \
+        } \
+        \
+        rbuf_read_##reader_type(cmd); \
+    })
+    
+#define READ_STRING() \
+    ({ \
+        if (rbuf_remain(cmd) < sizeof(uint16_t)) { \
+            goto param_error; \
+        } \
+        \
+        uint16_t string_length = rbuf_read_uint16(cmd); \
+        if (rbuf_remain(cmd) < string_length + 1) { \
+            goto param_error; \
+        } \
+        \
+        // TODO: allocate static string buffer \
+        // TODO: read string into static buffer \
+        // TODO: null terminate string \
+        // TODO: return string address \
+        \
+        0; \
+    })
 
 #define COLOR_TO_ALLEGRO(argb) \
     al_map_rgba( \

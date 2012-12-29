@@ -51,8 +51,19 @@ $client = Screenster::Client.new(TCPSocket.open("localhost", 32000))
 
 $client.create_screen 800, 600, 0
 $client.set_active_screen 1
-$client.draw_line 10.0, 10.0, 50.0, 10.0
-$client.flip
+
+x, y = 0, 0
+
+loop do
+  x += 1
+  y += 1
+
+  $client.clear_screen 0xff0000
+  $client.draw_line 10.0, 10.0, 50.0, 10.0
+  $client.draw_rect x, y, 100, 200
+  $client.flip
+  sleep 0.04
+end
 
 gets
 $client.destroy_screen 1

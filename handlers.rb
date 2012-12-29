@@ -45,22 +45,13 @@ HANDLERS = {
       0x07 => { :name => "SET-FILL-COLOR",
                 :params => [:L, "argb"] },
       0x08 => { :name => "DRAW-RECT",
-                :params => [:F, "x", :F, "y", :F, "w", :F, "h"] },
+                :params => [:f, "x", :f, "y", :f, "w", :f, "h"] },
       0x09 => { :name => "DRAW-CIRCLE",
-                :params => [:F, "cx", :F, "cy", :F, "r"] },
+                :params => [:f, "cx", :f, "cy", :f, "r"] },
       0x0A => { :name => "DRAW-LINE",
-                :params => [:F, "x1", :F, "y1", :F, "x2", :F, "y2"] },
+                :params => [:f, "x1", :f, "y1", :f, "x2", :f, "y2"] },
       0x0B => { :name => "DRAW-LINE-TO",
-                :params => [:F, "x", :F, "y"] }
-    }
-    
-  },
-  
-  :test => {
-    
-    0xFF => {
-      0x01 => { :name => "HELLO" },
-      0x02 => { :name => "GOODBYE" }
+                :params => [:f, "x", :f, "y"] }
     }
     
   }
