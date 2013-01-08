@@ -9,6 +9,8 @@
 #include "rbuf.h"
 #include "mpool.h"
 
+#include "screenster.h"
+
 const unsigned short listen_port = 32000;
 
 #define RAW_BUFFER_SIZE      8192
@@ -32,13 +34,6 @@ uint16_t    cmd_len;
 
 #define HANDLER_POOL_SIZE 65536
 mpool_t *handler_pool;
-
-//
-// Screens
-
-#define MAX_SCREENS 15
-ALLEGRO_DISPLAY* screens[MAX_SCREENS+1] = {0};
-int active_screen = 0;
 
 //
 // Primitives
@@ -231,6 +226,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
+    obj_init();
+    register_builtin_types();
     handlers_init();
 
     //

@@ -22,10 +22,16 @@ HANDLER_FN(cmd_frame_reset) {
     return;
 }
 
-HANDLER_FN(cmd_test_echo) {
-    char* string = READ_STRING();
+HANDLER_FN(cmd_release_object) {
+    obj_id_t object_id = READ_FIXED_LENGTH(uint32_t, uint32);
     
-    printf("len=> %d, string=> %s\n", strlen(string), string);
+    obj_t *obj = obj_get(object_id);
+    if (obj) {
+        obj_release(obj);
+        // TODO: success
+    } else {
+        // TODO: fail
+    }
     
     return;
     
@@ -34,9 +40,10 @@ HANDLER_FN(cmd_test_echo) {
     return;
 }
 
-HANDLER_FN(cmd_flip) {
+HANDLER_FN(cmd_test_echo) {
+    char* string = READ_STRING();
     
-    al_flip_display();
+    printf("len=> %d, string=> %s\n", strlen(string), string);
     
     return;
     
@@ -52,58 +59,12 @@ HANDLER_FN(cmd_create_screen) {
     
     printf("new display requested (%dx%d,fullscreen=%d)\n", width, height, fullscreen);
     
-    int created = 0;
+    int flags = fullscreen ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
+    obj_id_t screen_id = create_screen(width, height, flags);
     
-    for (int i = 1; i <= MAX_SCREENS; ++i) {
-    	if (screens[i] == 0) {
-    
-    		printf("creating display (id=%d)\n", i);
-    		
-    		int flags = fullscreen ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
-    		
-    		al_set_new_display_flags(flags);
-    		screens[i] = al_create_display(width, height);
-    
-    		if (screens[i]) {
-    			created = 1;
-    		}
-    		
-    		break;
-    	
-    	}
+    if (screen_id) {
+        // TODO: reply
     }
-    
-    if (created) {
-    	// TODO: reply
-    }
-    
-    return;
-    
-    param_error:
-    fprintf(stderr, "parameter error!\n");
-    return;
-}
-
-HANDLER_FN(cmd_destroy_screen) {
-    unsigned char screen_id = READ_FIXED_LENGTH(unsigned char, byte);
-    
-    printf("destroy screen requested (id=%d)\n", screen_id);
-    
-    if (screen_id < 1 || screen_id > MAX_SCREENS || screens[screen_id] == 0) {
-    	printf("invalid screen id\n", screen_id);
-    	// TODO: handle error
-    	return;
-    }
-    
-    if (active_screen == screen_id) {
-    	active_screen = 0;
-    	al_set_target_bitmap(NULL);
-    }
-    
-    al_destroy_display(screens[screen_id]);
-    screens[screen_id] = NULL;
-    
-    // TODO: reply
     
     return;
     
@@ -113,17 +74,13 @@ HANDLER_FN(cmd_destroy_screen) {
 }
 
 HANDLER_FN(cmd_set_active_screen) {
-    unsigned char screen_id = READ_FIXED_LENGTH(unsigned char, byte);
+    obj_id_t screen_id = READ_FIXED_LENGTH(uint32_t, uint32);
     
-    if (screen_id < 1 || screen_id > MAX_SCREENS || screens[screen_id] == 0) {
-    	// TODO: error
-    	return;
+    if (SUCCESS(activate_screen(screen_id))) {
+        // TODO: success
+    } else {
+        // TODO: error
     }
-    
-    active_screen = screen_id;
-    al_set_target_backbuffer(screens[active_screen]);
-    
-    // TODO: reply
     
     return;
     
@@ -136,6 +93,17 @@ HANDLER_FN(cmd_clear_screen) {
     uint32_t color = READ_FIXED_LENGTH(uint32_t, uint32);
     
     al_clear_to_color(COLOR_TO_ALLEGRO(color));
+    
+    return;
+    
+    param_error:
+    fprintf(stderr, "parameter error!\n");
+    return;
+}
+
+HANDLER_FN(cmd_flip) {
+    
+    al_flip_display();
     
     return;
     
@@ -354,17 +322,18 @@ HANDLER_FN(cmd_set_clip_rect) {
 }
 
 void handlers_init() {
-    create_category(0, 2);
-    install_handler(0, 1, cmd_all_reset);
-    install_handler(0, 2, cmd_frame_reset);
+    create_category(16, 2);
+    install_handler(16, 1, cmd_all_reset);
+    install_handler(16, 2, cmd_frame_reset);
+    create_category(0, 1);
+    install_handler(0, 1, cmd_release_object);
     create_category(255, 1);
     install_handler(255, 1, cmd_test_echo);
-    create_category(64, 5);
-    install_handler(64, 5, cmd_flip);
+    create_category(64, 4);
     install_handler(64, 1, cmd_create_screen);
-    install_handler(64, 2, cmd_destroy_screen);
-    install_handler(64, 3, cmd_set_active_screen);
-    install_handler(64, 4, cmd_clear_screen);
+    install_handler(64, 2, cmd_set_active_screen);
+    install_handler(64, 3, cmd_clear_screen);
+    install_handler(64, 4, cmd_flip);
     create_category(70, 11);
     install_handler(70, 5, cmd_fill_off);
     install_handler(70, 11, cmd_draw_line_to);

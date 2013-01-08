@@ -1,6 +1,8 @@
 require './handlers'
 
 PARAM_TYPES = {
+  
+  :O => { :c_type => 'obj_id_t', :reader => 'READ_FIXED_LENGTH(uint32_t, uint32)' },
 
   :Q => { :c_type => 'uint64_t', :reader => 'READ_FIXED_LENGTH(uint64_t, uint64)' },
   :L => { :c_type => 'uint32_t', :reader => 'READ_FIXED_LENGTH(uint32_t, uint32)' },

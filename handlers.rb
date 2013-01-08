@@ -1,8 +1,14 @@
 HANDLERS = {
   :builtin => {
     
-    # Control Commands
+    # Object commands
     0x00 => {
+      0x01 => { :name => "RELEASE-OBJECT",
+                :params => [:O, "object-id"] }
+    },
+    
+    # Control Commands
+    0x10 => {
       0x01 => { :name => "ALL-RESET" },
       0x02 => { :name => "FRAME-RESET" }
     },
@@ -11,14 +17,12 @@ HANDLERS = {
     0x40 => {
       0x01 => { :name => "CREATE-SCREEN",
                 :params => [:L, "width", :L, "height", :C, "fullscreen"],
-                :return => [:L, "screen-id"] },
-      0x02 => { :name => "DESTROY-SCREEN",
-                :params => [:C, "screen-id"] },
-      0x03 => { :name => "SET-ACTIVE-SCREEN",
-                :params => [:C, "screen-id"] },
-      0x04 => { :name => "CLEAR-SCREEN",
+                :return => [:O, "screen-id"] },
+      0x02 => { :name => "SET-ACTIVE-SCREEN",
+                :params => [:O, "screen-id"] },
+      0x03 => { :name => "CLEAR-SCREEN",
                 :params => [:L, "color"] },
-      0x05 => { :name => "FLIP" }
+      0x04 => { :name => "FLIP" }
     },
 
     # Graphics - General

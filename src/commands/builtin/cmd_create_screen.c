@@ -1,26 +1,8 @@
 printf("new display requested (%dx%d,fullscreen=%d)\n", width, height, fullscreen);
 
-int created = 0;
+int flags = fullscreen ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
+obj_id_t screen_id = create_screen(width, height, flags);
 
-for (int i = 1; i <= MAX_SCREENS; ++i) {
-	if (screens[i] == 0) {
-
-		printf("creating display (id=%d)\n", i);
-		
-		int flags = fullscreen ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
-		
-		al_set_new_display_flags(flags);
-		screens[i] = al_create_display(width, height);
-
-		if (screens[i]) {
-			created = 1;
-		}
-		
-		break;
-	
-	}
-}
-
-if (created) {
-	// TODO: reply
+if (screen_id) {
+    // TODO: reply
 }

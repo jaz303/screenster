@@ -23,6 +23,8 @@ module Screenster
             
             param_names << param_name
             
+            param_type = :L if param_type == :O
+              
             case param_type
             when :A
               pack_string << "SA\#{#{param_name}.length + 1}"
@@ -72,7 +74,7 @@ $client.test_echo "This is a test!\n"
 
 x, y = 0, 0
 
-loop do
+100.times do
   x += 1
   y += 1
   
@@ -84,7 +86,7 @@ loop do
 end
 
 gets
-$client.destroy_screen 1
+$client.release_object 1
 
 exit
 
