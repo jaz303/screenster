@@ -72,6 +72,8 @@ $client.set_active_screen 1
 
 $client.test_echo "This is a test!\n"
 
+$client.load_image "guardian.jpg"
+
 x, y = 0, 0
 
 100.times do
@@ -81,6 +83,7 @@ x, y = 0, 0
   $client.clear_screen 0xff0000
   $client.draw_line 10.0, 10.0, 50.0, 10.0
   $client.draw_rect x, y, 100, 200
+  $client.draw_image 2, 200, 200
   $client.flip
   sleep 0.04
 end

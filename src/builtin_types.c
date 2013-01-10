@@ -1,26 +1,24 @@
 #include "screenster.h"
 
-static int type_screen;
-static int type_image;
-static int type_tileset;
+int kObjectTypeScreen;
+int kObjectTypeImage;
+int kObjectTypeTileset;
 
 static void destroy_screen(obj_t *obj);
 static void destroy_image(obj_t *obj);
 static void destroy_tileset(obj_t *obj);
 
-typedef struct {
-    obj_t header;
-    ALLEGRO_DISPLAY *display;
-} obj_screen_t;
-
 void register_builtin_types(void) {
-    type_screen = obj_register_type(destroy_screen);
-    type_image = obj_register_type(destroy_image);
-    type_tileset = obj_register_type(destroy_tileset);
+    kObjectTypeScreen = obj_register_type(destroy_screen);
+    kObjectTypeImage = obj_register_type(destroy_image);
+    kObjectTypeTileset = obj_register_type(destroy_tileset);
 }
 
+//
+// Screen
+
 obj_id_t create_screen(int width, int height, int al_flags) {
-    obj_screen_t *screen = obj_create(type_screen, sizeof(obj_screen_t));
+    obj_screen_t *screen = obj_create(kObjectTypeScreen, sizeof(obj_screen_t));
     if (!screen)
         return 0;
         
@@ -36,7 +34,7 @@ obj_id_t create_screen(int width, int height, int al_flags) {
 }
 
 status_t activate_screen(obj_id_t screen_id) {
-    obj_screen_t *screen = OBJ_GET_SAFE(screen_id, obj_screen_t*, type_screen);
+    obj_screen_t *screen = OBJ_GET_SAFE(screen_id, obj_screen_t*, kObjectTypeScreen);
     if (!screen) {
         return GEN_ERROR;
     }
@@ -46,15 +44,44 @@ status_t activate_screen(obj_id_t screen_id) {
 }
 
 void destroy_screen(obj_t *obj) {
+    
     if (active_screen_id == obj->id) {
         active_screen_id = 0;
         al_set_target_bitmap(NULL);
     }
-    al_destroy_display(((obj_screen_t*)obj)->display);
+    
+    obj_screen_t *screen = (obj_screen_t*)obj;
+    if (screen->display) {
+        al_destroy_display(screen->display);
+    }
+
+}
+
+//
+// Image
+
+obj_id_t create_image(const char *filename) {
+    obj_image_t *image = obj_create(kObjectTypeImage, sizeof(obj_image_t));
+    if (!image)
+        return 0;
+    
+    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+    image->bitmap = al_load_bitmap(filename);
+    
+    if (!image->bitmap) {
+        obj_release(image);
+        return 0;
+    }
+    
+    return image->header.id;
 }
 
 void destroy_image(obj_t *obj) {
-    
+    obj_image_t *image = (obj_image_t*)obj;
+    if (image->bitmap) {
+        al_destroy_bitmap(image->bitmap);
+    }
 }
 
 void destroy_tileset(obj_t *obj) {

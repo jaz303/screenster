@@ -8,8 +8,16 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
 
 #include "types.h"
+
+//
+// Built in object type constants
+
+extern int kObjectTypeScreen;
+extern int kObjectTypeImage;
+extern int kObjectTypeTileset;
 
 //
 //
@@ -47,5 +55,7 @@ void register_builtin_types(void);
 
 obj_id_t create_screen(int width, int height, int al_flags);
 status_t activate_screen(obj_id_t screen_id);
+
+obj_id_t create_image(const char *filename);
 
 #endif

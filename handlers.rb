@@ -35,6 +35,14 @@ HANDLERS = {
       #0x05 SET-CLIP-POLYGON
       0x06 => { :name => "CLEAR-CLIP" }
     },
+    
+    0x42 => {
+      0x01 => { :name => "LOAD-IMAGE",
+                :params => [:A, "filename"],
+                :return => [:O, "image-id"] },
+      0x02 => { :name => "DRAW-IMAGE",
+                :params => [:O, "image-id", :f, "x", :f, "y"] }
+    },
 
     # Graphics - Primitives
     0x46 => {

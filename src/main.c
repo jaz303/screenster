@@ -235,6 +235,7 @@ int main(int argc, char *argv[]) {
 
     al_init();
     al_init_primitives_addon();
+    al_init_image_addon();
 
     reset_draw_state();
 
