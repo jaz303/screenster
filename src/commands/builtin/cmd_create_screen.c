@@ -3,6 +3,6 @@ printf("new display requested (%dx%d,fullscreen=%d)\n", width, height, fullscree
 int flags = fullscreen ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
 obj_id_t screen_id = create_screen(width, height, flags);
 
-if (screen_id) {
+if (OBJ_SUCCESS(screen_id)) {
     // TODO: reply
 }
