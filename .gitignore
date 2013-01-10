@@ -16,3 +16,4 @@
 *.out
 *.app
 test
+src/handlers.c
