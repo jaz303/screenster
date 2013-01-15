@@ -120,15 +120,6 @@ void restore_graphics_state() {
         str; \
     })
 
-#define COLOR_TO_ALLEGRO(argb) \
-    al_map_rgba( \
-        ((argb) >> 16) & 0xFF, \
-        ((argb) >>  8) & 0xFF, \
-        ((argb) >>  0) & 0xFF, \
-        ((argb) >> 24) & 0xFF \
-    )
-
-
 typedef void (*handler_f)(HANDLER_ARGS);
 handler_f*      handler_lookup[256] = {0};
 int             handler_counts[256] = {-1};

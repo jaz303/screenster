@@ -33,6 +33,15 @@ extern int kObjectTypeTileset;
 
 #define OBJ_GET_SAFE(obj_id, c_type, obj_type) \
     (c_type)obj_get_safe(obj_id, obj_type)
+    
+// Convert a color (expressed as uint32_t ARGB) to an ALLEGRO_COLOR
+#define COLOR_TO_ALLEGRO(argb) \
+    al_map_rgba( \
+        ((argb) >> 16) & 0xFF, \
+        ((argb) >>  8) & 0xFF, \
+        ((argb) >>  0) & 0xFF, \
+        ((argb) >> 24) & 0xFF \
+    )
 
 //
 // Global state (see `state.c`)
