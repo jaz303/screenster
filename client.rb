@@ -72,7 +72,7 @@ $client.set_active_screen 1
 
 $client.test_echo "This is a test!\n"
 
-$client.load_image "guardian.jpg"
+$client.load_tileset "guardian.jpg", 30, 37, 0
 
 x, y = 0, 0
 
@@ -83,7 +83,7 @@ x, y = 0, 0
   $client.clear_screen 0xff0000
   $client.draw_line 10.0, 10.0, 50.0, 10.0
   $client.draw_rect x, y, 100, 200
-  $client.draw_image 2, 200, 200
+  $client.draw_tile 3, x % 80, 200, 200
   $client.flip
   sleep 0.04
 end
