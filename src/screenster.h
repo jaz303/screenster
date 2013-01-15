@@ -47,6 +47,7 @@ int obj_register_type(obj_destructor_f destructor);
 void* obj_create(int type, ssize_t sz);
 void obj_retain(void *obj);
 void obj_release(void *obj);
+void obj_release_id(obj_id_t id);
 obj_t* obj_get(obj_id_t id);
 obj_t* obj_get_safe(obj_id_t id, int type);
 void obj_destroy_all(void);

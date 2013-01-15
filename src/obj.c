@@ -99,6 +99,13 @@ void obj_release(void *obj) {
     }
 }
 
+void obj_release_id(obj_id_t id) {
+    obj_t *obj = obj_get(id);
+    if (obj) {
+        obj_release(obj);
+    }
+}
+
 obj_t* obj_get(obj_id_t id) {
     return obj_all[id];
 }
