@@ -52,7 +52,9 @@ HANDLERS = {
                 :return => [:O, "tileset-id"] },
       0x02 => { :name => "CREATE-TILESET",
                 :params => [:O, "image-id", :S, "tile-width", :S, "tile-height", :L, "mask-color"],
-                :return => [:O, "tileset-id"] }
+                :return => [:O, "tileset-id"] },
+      0x03 => { :name => "DRAW-TILE",
+                :params => [:O, "tileset-id", :S, "tile-number", :f, "x", :f, "y"] }
     },
 
     # Graphics - Primitives
