@@ -84,6 +84,48 @@ void destroy_image(obj_t *obj) {
     }
 }
 
-void destroy_tileset(obj_t *obj) {
+//
+// Tileset
+
+obj_id_t load_tileset_from_file(const char *filename, uint16_t tile_width, uint16_t tile_height, uint32_t mask_color) {
+    obj_id_t image = create_image(filename);
+    if (OBJ_SUCCESS(image)) {
+        obj_id_t tileset = create_tileset_from_image(image, tile_width, tile_height, mask_color);
+        obj_release_id(image);
+        return tileset;
+    } else {
+        return 0;        
+    }
+}
+
+obj_id_t create_tileset_from_image(obj_id_t image_id, uint16_t tile_width, uint16_t tile_height, uint32_t mask_color) {
+    obj_tileset_t *tileset = obj_create(kObjectTypeTileset, sizeof(obj_tileset_t));
+    if (!tileset)
+        return 0;
+        
+    obj_image_t *image = OBJ_GET_SAFE(image_id, obj_image_t*, kObjectTypeImage);
+    if (!image)
+        return 0;
+        
+    obj_retain(image);
     
+    tileset->width = al_get_bitmap_width(image->bitmap);
+    tileset->height = al_get_bitmap_height(image->bitmap);
+    tileset->tile_width = tile_width;
+    tileset->tile_height = tile_height;
+    tileset->tiles_wide = tileset->width / tileset->tile_width;
+    tileset->tiles_high = tileset->height / tileset->tile_height;
+    
+    if (mask_color != 0) {
+        al_convert_mask_to_alpha(image->bitmap, COLOR_TO_ALLEGRO(mask_color));
+    }
+    
+    return tileset->header.id;
+}
+
+void destroy_tileset(obj_t *obj) {
+    obj_tileset_t *tileset = (obj_tileset_t*)obj;
+    if (tileset->image) {
+        obj_release(tileset->image);
+    }
 }

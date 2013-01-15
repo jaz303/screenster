@@ -68,4 +68,8 @@ status_t activate_screen(obj_id_t screen_id);
 
 obj_id_t create_image(const char *filename);
 
+obj_id_t load_tileset_from_file(const char *filename, uint16_t tile_width, uint16_t tile_height, uint32_t mask_color);
+obj_id_t create_tileset_from_image(obj_id_t image_id, uint16_t tile_width, uint16_t tile_height, uint32_t mask_color);
+
+
 #endif
