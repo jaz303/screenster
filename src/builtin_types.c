@@ -107,14 +107,38 @@ obj_id_t create_tileset_from_image(obj_id_t image_id, uint16_t tile_width, uint1
     if (!tileset)
         return 0;
         
+    tileset->image = image;
+    tileset->bitmap = image->bitmap;
+    tileset->tiles = NULL;
     obj_retain(image);
-    
+        
     tileset->width = al_get_bitmap_width(image->bitmap);
     tileset->height = al_get_bitmap_height(image->bitmap);
     tileset->tile_width = tile_width;
     tileset->tile_height = tile_height;
-    tileset->tiles_wide = tileset->width / tileset->tile_width;
-    tileset->tiles_high = tileset->height / tileset->tile_height;
+    
+    int tiles_wide = tileset->width / tileset->tile_width;
+    int tiles_high = tileset->height / tileset->tile_height;
+    
+    tileset->tile_count = tiles_wide * tiles_high;
+    
+    tileset->tiles = malloc(sizeof(tileinfo_t) * tileset->tile_count);
+    if (!tileset->tiles) {
+        obj_release(tileset);
+        return 0;
+    }
+    
+    float tx = 0.0, ty = 0.0;
+    for (int i = 0; i < tiles_high; i++) {
+        tx = 0.0;
+        for (int j = 0; j < tiles_wide; j++) {
+            tileinfo_t *tile = &tileset->tiles[(i * tiles_wide) + j];
+            tile->x = tx;
+            tile->y = ty;
+            tx += tileset->tile_width;
+        }
+        ty += tileset->tile_width;
+    }
     
     if (mask_color != 0) {
         al_convert_mask_to_alpha(image->bitmap, COLOR_TO_ALLEGRO(mask_color));
@@ -127,5 +151,8 @@ void destroy_tileset(obj_t *obj) {
     obj_tileset_t *tileset = (obj_tileset_t*)obj;
     if (tileset->image) {
         obj_release(tileset->image);
+    }
+    if (tileset->tiles) {
+        free(tileset->tiles);
     }
 }

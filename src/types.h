@@ -20,14 +20,18 @@ typedef struct {
 } obj_image_t;
 
 typedef struct {
+    float x;
+    float y;
+} tileinfo_t;
+
+typedef struct {
     obj_t header;
     obj_image_t *image;
-    int width;
-    int height;
-    int tile_width;
-    int tile_height;
-    int tiles_wide;
-    int tiles_high;
+    ALLEGRO_BITMAP *bitmap;
+    int width, height;
+    int tile_width, tile_height;
+    int tile_count;
+    tileinfo_t *tiles;
 } obj_tileset_t;
 
 typedef void (*obj_destructor_f)(obj_t* obj);
