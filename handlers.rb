@@ -36,12 +36,23 @@ HANDLERS = {
       0x06 => { :name => "CLEAR-CLIP" }
     },
     
+    # Images
     0x42 => {
       0x01 => { :name => "LOAD-IMAGE",
                 :params => [:A, "filename"],
                 :return => [:O, "image-id"] },
       0x02 => { :name => "DRAW-IMAGE",
                 :params => [:O, "image-id", :f, "x", :f, "y"] }
+    },
+    
+    # Tilesets
+    0x43 => {
+      0x01 => { :name => "LOAD-TILESET",
+                :params => [:A, "filename", :S, "tile-width", :S, "tile-height", :L, "mask-color"],
+                :return => [:O, "tileset-id"] },
+      0x02 => { :name => "CREATE-TILESET",
+                :params => [:O, "image-id", :S, "tile-width", :S, "tile-height", :L, "mask-color"],
+                :return => [:O, "tileset-id"] }
     },
 
     # Graphics - Primitives
