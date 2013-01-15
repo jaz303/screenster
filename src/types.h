@@ -19,6 +19,17 @@ typedef struct {
     ALLEGRO_BITMAP *bitmap;
 } obj_image_t;
 
+typedef struct {
+    obj_t header;
+    obj_image_t *image;
+    int width;
+    int height;
+    int tile_width;
+    int tile_height;
+    int tiles_wide;
+    int tiles_high;
+} obj_tileset_t;
+
 typedef void (*obj_destructor_f)(obj_t* obj);
 
 typedef int status_t;
