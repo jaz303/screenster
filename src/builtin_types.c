@@ -99,12 +99,12 @@ obj_id_t load_tileset_from_file(const char *filename, uint16_t tile_width, uint1
 }
 
 obj_id_t create_tileset_from_image(obj_id_t image_id, uint16_t tile_width, uint16_t tile_height, uint32_t mask_color) {
-    obj_tileset_t *tileset = obj_create(kObjectTypeTileset, sizeof(obj_tileset_t));
-    if (!tileset)
-        return 0;
-        
     obj_image_t *image = OBJ_GET_SAFE(image_id, obj_image_t*, kObjectTypeImage);
     if (!image)
+        return 0;
+    
+    obj_tileset_t *tileset = obj_create(kObjectTypeTileset, sizeof(obj_tileset_t));
+    if (!tileset)
         return 0;
         
     obj_retain(image);
