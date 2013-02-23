@@ -17,6 +17,12 @@ void buf_destroy(buf_t *buf) {
     if (buf) free(buf);
 }
 
+void buf_init(buf_t *buf, ssize_t capacity) {
+    buf->capacity = capacity;
+    buf->read = 0;
+    buf->write = 0;
+}
+
 void buf_reset(buf_t *buf) {
     buf->read = buf->write = 0;
 }

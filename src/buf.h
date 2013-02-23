@@ -15,6 +15,8 @@ typedef struct {
 
 buf_t*              buf_create(ssize_t capacity);
 void                buf_destroy(buf_t *buf);
+
+void                buf_init(buf_t *buf, ssize_t capacity);
                     
 void                buf_reset(buf_t *buf);
 ssize_t             buf_size(buf_t *buf);
