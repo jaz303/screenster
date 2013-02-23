@@ -37,6 +37,7 @@ msg_t* msg_pool_checkout(msg_pool_t *pool) {
     } else {
         msg = malloc(sizeof(msg_t) + MAX_MSG_SIZE);
         if (msg) {
+            buf_init(&msg->args, MAX_MSG_SIZE);
             msg->next_free = NULL;
             msg->next = pool->all;
             pool->all = msg;
