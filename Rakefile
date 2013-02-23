@@ -74,7 +74,7 @@ task :generate_handlers do
   
   init_function << "}\n\n"
   
-  File.open("src/handlers.c", "w") do |f|
+  File.open("src/generated_handlers/all.c", "w") do |f|
     f.write "/* This file is auto-generated (run `rake generate_handlers`) */\n\n"
     f.write handlers
     f.write init_function

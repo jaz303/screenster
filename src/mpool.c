@@ -4,27 +4,20 @@
 #define MPOOL_ALIGN_SZ(sz) \
     (((sz) + (MPOOL_ALIGN - 1)) & ~(MPOOL_ALIGN - 1))
 
-mpool_t* mpool_create(ssize_t sz) {
-    mpool_t *pool = malloc(sizeof(mpool_t));
-    if (pool) {
-        pool->size = MPOOL_ALIGN_SZ(sz);
-        pool->base = malloc(pool->size);
-        if (pool->base) {
-            pool->end = pool->base + pool->size;
-            pool->next = pool->base;
-        } else {
-            free(pool);
-            pool = 0;
-        }
+int mpool_init(mpool_t *pool, ssize_t sz) {
+    pool->size = MPOOL_ALIGN_SZ(sz);
+    pool->base = malloc(pool->size);
+    if (pool->base) {
+        pool->end = pool->base + pool->size;
+        pool->next = pool->base;
+        return 1;
+    } else {
+        return 0;
     }
-    return pool;
 }
 
-void mpool_destroy(mpool_t* pool) {
-    if (pool) {
-        free(pool->base);
-        free(pool);
-    }
+int mpool_cleanup(mpool_t *pool) {
+    free(pool->base);
 }
 
 void* mpool_alloc(mpool_t* pool, ssize_t sz) {

@@ -1,147 +1,19 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-
-#include "rbuf.h"
-#include "mpool.h"
-
 #include "screenster.h"
+#include "generated_handlers.c"
 
-const unsigned short listen_port = 32000;
-
-#define RAW_BUFFER_SIZE      8192
-#define CMD_BUFFER_SIZE     65536
-
-unsigned char raw_buffer[RAW_BUFFER_SIZE];
-
-enum { PARSE_OUT, PARSE_GOT_HEADER } parse_state = PARSE_OUT;
-
-rbuf_t      *cmd_buffer;
-uint8_t     cmd_category;
-uint8_t     cmd_command;
-uint16_t    cmd_len;
-
-//
-// Memory pool for use by command handlers
-// Any allocated memory will be released after the handler returns
-
-#define HANDLER_ALLOC(sz)       mpool_alloc(handler_pool, sz)
-#define HANDLER_POOL_DRAIN()    mpool_clear(handler_pool)
-
-#define HANDLER_POOL_SIZE 65536
-mpool_t *handler_pool;
-
-//
-// Primitives
-
-enum {
-    DRAW_PEN_ON = 1,
-    DRAW_FILL_ON = 2
-};
-
-typedef struct {
-    unsigned int    flags;
-    ALLEGRO_COLOR   pen_color;
-    ALLEGRO_COLOR   fill_color;
-    float           x;
-    float           y;
-} draw_state_t;
-
-draw_state_t draw_state;
-
-//
-// General draw state
-
-typedef struct {
-    draw_state_t        draw_state;
-} saved_graphics_state_t;
-
-#define GRAPHICS_STACK_SIZE 32
-saved_graphics_state_t  graphics_stack[GRAPHICS_STACK_SIZE];
-int                     graphics_stack_count = 0;
-
-void reset_draw_state() {
-    draw_state.flags = DRAW_PEN_ON | DRAW_FILL_ON;
-    draw_state.pen_color = al_map_rgb(255, 255, 255);
-    draw_state.fill_color = al_map_rgb(0, 0, 0);
-    draw_state.x = 0.0f;
-    draw_state.y = 0.0f;
-}
-
-void save_graphics_state() {
-    graphics_stack[graphics_stack_count].draw_state = draw_state;
-    graphics_stack_count++;
-}
-
-void restore_graphics_state() {
-    graphics_stack_count--;
-    draw_state = graphics_stack[graphics_stack_count].draw_state;
-}
-
-//
-// Handlers
-
-#define HANDLER_ARGS size_t cmd_len, rbuf_t *cmd
-#define HANDLER_FN(name) void name(HANDLER_ARGS)
-
-#define READ_FIXED_LENGTH(c_type, reader_type) \
-    ({ \
-        if (rbuf_remain(cmd) < sizeof(c_type)) { \
-            goto param_error; \
-        } \
-        \
-        rbuf_read_##reader_type(cmd); \
-    })
+void init() {
     
-#define READ_STRING() \
-    ({ \
-        if (rbuf_remain(cmd) < sizeof(uint16_t)) { \
-            goto param_error; \
-        } \
-        \
-        uint16_t string_length = rbuf_read_uint16(cmd); \
-        if (rbuf_remain(cmd) < string_length + 1) { \
-            goto param_error; \
-        } \
-        \
-        char *str = HANDLER_ALLOC(string_length + 1); \
-        if (str) { \
-            rbuf_read(cmd, str, string_length + 1); \
-            str[string_length] = 0; \
-        } else { \
-            fprintf(stderr, "couldn't allocate space for string param (sz=%d)\n", string_length + 1); \
-            goto param_error; \
-        } \
-        \
-        str; \
-    })
-
-typedef void (*handler_f)(HANDLER_ARGS);
-handler_f*      handler_lookup[256] = {0};
-int             handler_counts[256] = {-1};
-
-void create_category(unsigned char category, int function_count) {
-    handler_lookup[category] = malloc(sizeof(handler_f) * (function_count + 1));
-    handler_counts[category] = function_count;
+    obj_init();
+    register_builtin_types();
+    handlers_init();
+    
+    al_init();
+    al_init_primitives_addon();
+    al_init_image_addon();
+    
 }
 
-void install_handler(unsigned char category, unsigned char offset, handler_f fn) {
-    handler_lookup[category][offset] = fn;
-}
-
-//
-// Auto-generated code
-
-#include "handlers.c"
-
-//
-//
-
-int create_listener() {
+int create_listener(unsigned short port) {
     
     int sock_listen = socket(AF_INET, SOCK_STREAM, 0);
     
@@ -149,133 +21,238 @@ int create_listener() {
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_addr.sin_port = htons(listen_port);
+    server_addr.sin_port = htons(port);
     
     bind(sock_listen, (struct sockaddr*)&server_addr, sizeof(server_addr));
     listen(sock_listen, 0);
     
-    printf("listening on port %d...\n", listen_port);
+    printf("listening on port %d...\n", port);
     
     return sock_listen;
 
 }
 
-int process() {
+int parse(msg_t *msg) {
     
-    while (1) {
-        switch (parse_state) {
-            case PARSE_OUT:
-                if (rbuf_count(cmd_buffer) >= 4) {
-                    cmd_category    = rbuf_read_byte(cmd_buffer);
-                    cmd_command     = rbuf_read_byte(cmd_buffer);
-                    cmd_len         = rbuf_read_uint16(cmd_buffer);
-                    parse_state     = PARSE_GOT_HEADER;
-                } else {
-                    goto done;
-                }
-                break;
-            case PARSE_GOT_HEADER:
-                if (rbuf_count(cmd_buffer) >= cmd_len) {
-                    if (cmd_command == 0 || cmd_command > handler_counts[cmd_category]) {
-                        fprintf(stderr, "unknown command: [0x%02x:0x%02x]\n", cmd_category, cmd_command);
-                        // TODO: handle error
-                    } else {
-                        ssize_t expected_count_after = rbuf_count(cmd_buffer) - cmd_len;
-                        handler_lookup[cmd_category][cmd_command](cmd_len, cmd_buffer);
-                        HANDLER_POOL_DRAIN();
-                        while (rbuf_count(cmd_buffer) > expected_count_after) {
-                            rbuf_read_byte(cmd_buffer);
-                        }
-                        if (rbuf_count(cmd_buffer) < expected_count_after) {
-                            fprintf(stderr, "error: command handler for [0x%02x:0x%02x] consumed too much buffer! (disconnecting...)\n", cmd_category, cmd_command);
-                            return 0;
-                        }
-                    }
-                    parse_state = PARSE_OUT;
-                } else {
-                    goto done;
-                }
-                break;
+    if (msg->parse_state == PARSE_OUT) {
+        if (buf_size(&msg->args) >= 4) {
+            msg->cmd_category   = buf_read_byte(&msg->args);
+            msg->cmd_command    = buf_read_byte(&msg->args);
+            msg->cmd_len        = buf_read_uint16(&msg->args);
+            if (msg->cmd_len > MAX_MSG_ARGS_SIZE) {
+                return PARSE_ARGS_TOO_LONG;
+            } else {
+                msg->parse_state = PARSE_GOT_HEADER;
+            }
+        } else {
+            return PARSE_INCOMPLETE;
         }
     }
     
-done:
-    return 1;
+    if (msg->parse_state == PARSE_GOT_HEADER) {
+        if (buf_size(&msg->args) >= msg->cmd_len) {
+            return PARSE_COMPLETE;
+        } else {
+            return PARSE_INCOMPLETE;
+        }
+    }
+    
+    assert(0 /* shouldn't get here */);
+    
+}
+
+void* connection_handler(void *arg) {
+    
+    conn_t *conn = (conn_t*)arg;
+    
+    msg_t *msg = msg_pool_checkout(&conn->msg_pool);
+    if (!msg) {
+        fprintf(stderr, "could not checkout message\n");
+        goto disconnect;
+    }
+    
+    while (1) {
+        
+        ssize_t read = recv(conn->fd, buf_write_ptr(&msg->args), buf_write_remain(&msg->args), 0);
+        if (read == -1) {
+            fprintf(stderr, "recv() error\n");
+            goto disconnect;
+        }
+        
+        buf_advance(&msg->args, read);
+        
+    reparse:
+        switch (parse(msg)) {
+            case PARSE_COMPLETE:
+                {
+                    msg_t *new_msg = msg_pool_checkout(&conn->msg_pool);
+                    if (new_msg == NULL) {
+                        fprintf(stderr, "chould not checkout message\n");
+                        goto disconnect;
+                    }
+                    
+                    ssize_t total_msg_len = buf_read_pos(&msg->args) + msg->cmd_len;
+                    ssize_t diff = buf_size(&msg->args) - total_msg_len;
+                    if (diff > 0) {
+                        buf_truncate(&msg->args, total_msg_len);
+                        buf_write(&new_msg->args, buf_write_ptr(&msg->args), diff);
+                    }
+                    
+                    ALLEGRO_EVENT evt = {
+                        .type = SCREENSTER_EVENT_MESSAGE_RECEIVED,
+                        .user = { .data1 = (intptr_t)msg }
+                    };
+                    
+                    al_emit_user_event(&conn->event_source, &evt, NULL);
+                    
+                    msg = new_msg;
+                    
+                    if (diff > 0) {
+                        goto reparse;
+                    }
+                }
+                break;
+            case PARSE_INCOMPLETE:
+                /* do nothing, keep reading */
+                break;
+            case PARSE_ARGS_TOO_LONG:
+                fprintf(stderr, "message args too long; disconnecting\n");
+                goto disconnect;
+        }
+        
+    }
+
+    
+disconnect:
+
+    fprintf(stderr, "connection closing...\n");
+
+    ALLEGRO_EVENT evt = { .type = SCREENSTER_EVENT_DISCONNECT };
+    al_emit_user_event(&conn->event_source, &evt, NULL);
+
+    pthread_exit(NULL);
+    
+}
+
+void dispatch(conn_t *conn, msg_t *msg) {
+    handler_f hnd = get_handler(msg->cmd_category, msg->cmd_command);
+    if (hnd == NULL) {
+        fprintf(stderr, "unknown command: [0x%02x:0x%02x]\n", msg->cmd_category, msg->cmd_command);
+        // TODO: handle error
+    } else {
+        hnd(conn, msg);
+        mpool_clear(&conn->arg_pool);
+    }
 }
 
 int main(int argc, char *argv[]) {
     
-    cmd_buffer = rbuf_create(CMD_BUFFER_SIZE);
-    if (!cmd_buffer) {
-        fprintf(stderr, "could not allocate input buffer\n");
-        return 1;
-    }
+    init();
     
-    handler_pool = mpool_create(HANDLER_POOL_SIZE);
-    if (!handler_pool) {
-        fprintf(stderr, "could not allocate handler memory pool\n");
-        return 1;
-    }
-    
-    obj_init();
-    register_builtin_types();
-    handlers_init();
-
-    //
-    // Initialise Allegro
-
-    al_init();
-    al_init_primitives_addon();
-    al_init_image_addon();
-
-    reset_draw_state();
-
-    //
-    //
-    
-    int listener_socket = create_listener();
-    
+    int listener_socket = create_listener(DEFAULT_PORT);
     while (1) {
         
-        struct sockaddr_in  client_addr;
-        socklen_t           client_addr_len     = sizeof(client_addr);
-        int                 conn                = accept(listener_socket,
-                                                         (struct sockaddr*)&client_addr,
-                                                         &client_addr_len);
+        conn_t conn;
+        conn.client_addr_len = sizeof(conn.client_addr);
+        conn.fd = accept(listener_socket, (struct sockaddr*)&conn.client_addr, &conn.client_addr_len);
         
-        printf("new connection accepted\n");
+        int mpool_ready = 1;
+        int msg_pool_ready = 1;
+        ALLEGRO_EVENT_QUEUE *events = NULL;
         
-        rbuf_clear(cmd_buffer);
-        parse_state = PARSE_OUT;
-        
-        while (1) {
-            
-            ssize_t read = recvfrom(conn,
-                                    raw_buffer,
-                                    RAW_BUFFER_SIZE,
-                                    0,
-                                    (struct sockaddr*)&client_addr,
-                                    &client_addr_len);
-            
-            if (read <= 0) {
-                break;
-            }
-            
-            if (!rbuf_write(cmd_buffer, raw_buffer, read)) {
-                fprintf(stderr, "buffer overrun!\n");
-                break;
-            }
-            
-            if (!process()) {
-                break;
-            }
-        
+        if (!mpool_init(&conn.arg_pool, HANDLER_POOL_SIZE)) {
+            fprintf(stderr, "could not initialise handler pool\n");
+            mpool_ready = 0;
+            goto disconnected;
         }
         
-        close(conn);
-        printf("connection closed\n");
+        if (msg_pool_init(&conn.msg_pool) != OK) {
+            fprintf(stderr, "could not initialise message pool\n");
+            msg_pool_ready = 0;
+            goto disconnected;
+        }
+        
+        events = al_create_event_queue();
+        if (!events) {
+            goto disconnected;
+        }
+        
+        al_init_user_event_source(&conn.event_source);
+        al_register_event_source(events, &conn.event_source);
+        
+        printf("new connection accepted...\n");
+        
+        pthread_attr_t io_thread_attr;
+        pthread_attr_init(&io_thread_attr);
+        pthread_attr_setdetachstate(&io_thread_attr, PTHREAD_CREATE_JOINABLE);
+        
+        pthread_t io_thread;
+        pthread_create(&io_thread, &io_thread_attr, connection_handler, &conn);
+        
+        pthread_attr_destroy(&io_thread_attr);
+        
+        for (int loop = 1; loop;) {
+            ALLEGRO_EVENT evt;
+            al_wait_for_event(events, &evt);
+            
+            switch (evt.type) {
+                case ALLEGRO_EVENT_JOYSTICK_AXIS:
+                    break;
+                case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
+                case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
+                    break;
+                case ALLEGRO_EVENT_KEY_DOWN:
+                case ALLEGRO_EVENT_KEY_UP:
+                case ALLEGRO_EVENT_KEY_CHAR:
+                    break;
+                case ALLEGRO_EVENT_MOUSE_AXES:
+                case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
+                case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
+                    break;
+                case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+                case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+                    break;
+                case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+                case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
+                    break;
+                case SCREENSTER_EVENT_MESSAGE_RECEIVED:
+                    dispatch(&conn, (msg_t*)evt.user.data1);
+                    msg_pool_return(&conn.msg_pool, (msg_t*)evt.user.data1);
+                    break;
+                case SCREENSTER_EVENT_DISCONNECT:
+                    loop = 0;
+                    break;
+                default:
+                    break;
+            }
+            
+            if (ALLEGRO_EVENT_TYPE_IS_USER(evt.type)) {
+                al_unref_user_event((ALLEGRO_USER_EVENT*)&evt);
+            }
+        }
+        
+        pthread_join(io_thread, NULL);
+        
+    disconnected:
     
+        close(conn.fd);
+        
+        if (mpool_ready) {
+            mpool_cleanup(&conn.arg_pool);
+        }
+    
+        if (msg_pool_ready) {
+            msg_pool_cleanup(&conn.msg_pool);
+        }
+        
+        if (events) {
+            al_destroy_user_event_source(&conn.event_source);
+            al_destroy_event_queue(events);
+        }
+        
     }
     
+    pthread_exit(NULL);
     return 0;
+    
 }

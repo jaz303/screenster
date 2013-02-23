@@ -5,13 +5,15 @@ LDFLAGS		= -L/usr/local/lib -lallegro -lallegro_main -lallegro_primitives -lalle
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-OBJECTS		:=	src/main.o	\
-				src/rbuf.o \
+OBJECTS		:=	src/graphics.o \
+				src/handlers.o \
+				src/main.o	\
 				src/mpool.o \
-				src/vector.o \
 				src/obj.o \
 				src/builtin_types.o \
-				src/state.o
+				src/state.o \
+				src/msg_pool.o \
+				src/buf.o
 
 HANDLERS	:=	$(wildcard src/commands/*/*.c)
 
