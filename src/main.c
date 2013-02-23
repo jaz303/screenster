@@ -81,6 +81,9 @@ void* connection_handler(void *arg) {
         if (read == -1) {
             fprintf(stderr, "recv() error\n");
             goto disconnect;
+        } else if (read == 0) {
+            fprintf(stderr, "client disconnected\n");
+            goto disconnect;
         }
         
         buf_advance(&msg->args, read);
