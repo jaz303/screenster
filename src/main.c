@@ -71,6 +71,10 @@ void* connection_handler(void *arg) {
         goto disconnect;
     }
     
+    assert(msg->args.capacity > 0);
+    assert(buf_size(&msg->args) == 0);
+    assert(buf_read_pos(&msg->args) == 0);
+    
     while (1) {
         
         ssize_t read = recv(conn->fd, buf_write_ptr(&msg->args), buf_write_remain(&msg->args), 0);
@@ -98,10 +102,9 @@ void* connection_handler(void *arg) {
                         buf_write(&new_msg->args, buf_write_ptr(&msg->args), diff);
                     }
                     
-                    ALLEGRO_EVENT evt = {
-                        .type = SCREENSTER_EVENT_MESSAGE_RECEIVED,
-                        .user = { .data1 = (intptr_t)msg }
-                    };
+                    ALLEGRO_EVENT evt;
+                    evt.user.type = SCREENSTER_EVENT_MESSAGE_RECEIVED;
+                    evt.user.data1 = (intptr_t)msg;
                     
                     al_emit_user_event(&conn->event_source, &evt, NULL);
                     
